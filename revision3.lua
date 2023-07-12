@@ -217,9 +217,11 @@ end
 local function revise()
 	for a, b in cells do
 		local currentsurrounding = getsurrounding(a)
+		local surroundedby4 = currentsurrounding.cells.left and currentsurrounding.cells.right and currentsurrounding.cells.up and currentsurrounding.cells.down
 		
-		if #currentsurrounding.cells > 0 then
-			warn('hi')
+		if surroundedby4 then
+			warn('this is room4')
+			warn(b.roomdata.roomtype)
 		end
 	end
 end
