@@ -215,9 +215,11 @@ local function draw(c, override)
 end
 
 local function revise()
-	for _, a in cells do
-		if #a.celldata.surrounding.cells == 4 then
-			warn('needs to be changed')
+	for a, b in cells do
+		local currentsurrounding = getsurrounding(a)
+		
+		if #currentsurrounding.cells > 0 then
+			warn('hi')
 		end
 	end
 end
@@ -234,14 +236,14 @@ draw(mapdata.area - mapdata.width)
 draw(mapdata.area - 1)
 print('corners added')
 
-for a = 0, 1 do
+for a = 0, 5 do
 	for a, b in stems do
 		if b then 
 			draw(a)
 		end
 	end
 end
-print('stems completed'.. ' - iters: 1')
+print('stems completed'.. ' - iters: 5')
 
 revise()
 print('revised')
