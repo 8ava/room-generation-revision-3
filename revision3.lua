@@ -27,7 +27,7 @@ type celldata = {
 
 type roomdata = {
 	celldata: celldata;
-	
+	doorways: {boolean}
 }
 
 local mapdata = {
@@ -43,6 +43,13 @@ mapdata.area = mapdata.width * mapdata.height
 local function coordtoposition(a): Vector2
 	return Vector2.new(a % mapdata.width, math.floor(a / mapdata.width))
 end
+
+local doorways = {
+	room1 = {false, false, false, true};
+	room2 = {false, false, true, true};
+	room3 = {true, true, false, true};
+	room4 = {true, true, true, true};
+}
 
 local rooms = {
 	prequired = {'testroom'; 'room2sl'; 'checkpoint1';};
@@ -175,9 +182,13 @@ local function determineroomdata(celldata: celldata)
 		end
 	end
 	
+	
+	local doors = doorways[roomtype]
+	
 	return {
 		roomtype = roomtype;
-		rotation = rotation
+		rotation = rotation;
+		doorways = doors
 	}
 end
 
@@ -234,7 +245,7 @@ local function revise()
 		local surroundedby4 = currentsurrounding.cells.left and currentsurrounding.cells.right and currentsurrounding.cells.up and currentsurrounding.cells.down
 		
 		if surroundedby4 and not (b.roomdata.roomtype == 'room4' or b.roomdata.roomtype == 'corner') then
-			warn(tostring(a).. '  SHOULDNOTBE  '.. b.roomdata.roomtype)
+			warn(tostring(a).. b.roomdata.roomtype.. '  SHOULDBE  room4')
 		end
 	end
 end
@@ -251,14 +262,14 @@ draw(mapdata.area - mapdata.width)
 draw(mapdata.area - 1)
 print('corners added')
 
-for a = 0, 1 do
+for a = 0, 234 do
 	for a, b in stems do
 		if b then 
 			draw(a)
 		end
 	end
 end
-print('stems completed'.. ' - iters: 1')
+print('stems completed'.. ' - iters: 234')
 
 revise()
 print('revised')
