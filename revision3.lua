@@ -128,22 +128,22 @@ local function determineroomdata(celldata: celldata)
 	end
 	
 	if gridp.X == 0 and not (gridp.Y == 0 or gridp.Y == mapdata.height) then
-		roomtype = 'room3'
+		roomtype = r:NextInteger(0, 1) == 1 and 'room3' or 'room2'
 		rotation = 1
 	end
 	
 	if gridp.Y == 0 and not (gridp.X == 0 or gridp.X == mapdata.width - 1) then
-		roomtype = 'room3'
+		roomtype = r:NextInteger(0, 1) == 1 and 'room3' or 'room2'
 		rotation = 0
 	end
 	
 	if gridp.X == mapdata.width - 1 and not (gridp.Y == 0 or gridp.Y == mapdata.height) then
-		roomtype = 'room3'
+		roomtype = r:NextInteger(0, 1) == 1 and 'room3' or 'room2'
 		rotation = 3
 	end
 	
 	if gridp.Y == mapdata.height - 1 and not (gridp.X == 0 or gridp.X == mapdata.width - 1) then
-		roomtype = 'room3'
+		roomtype = r:NextInteger(0, 1) == 1 and 'room3' or 'room2'
 		rotation = 2
 	end
 	
@@ -156,6 +156,7 @@ local function determineroomdata(celldata: celldata)
 		roomtype = 'room2'
 		rotation = 1
 	end
+	
 	
 	if iscorner then
 		roomtype = 'corner'
@@ -178,6 +179,19 @@ local function determineroomdata(celldata: celldata)
 		roomtype = roomtype;
 		rotation = rotation
 	}
+end
+
+local function deconstcell(a)
+	local cell = cells[a]
+	
+	if not cell then warn('no cell at index') return end
+	
+	cell.model:Destroy()
+	cell.model = nil;
+	
+	
+	table.clear(cell)
+	cell = nil
 end
 
 local function draw(c, override)
@@ -219,8 +233,8 @@ local function revise()
 		local currentsurrounding = getsurrounding(a)
 		local surroundedby4 = currentsurrounding.cells.left and currentsurrounding.cells.right and currentsurrounding.cells.up and currentsurrounding.cells.down
 		
-		if surroundedby4 and b.roomdata.roomtype ~= 'room4' then
-			warn(tostring(a).. ' should not be '.. b.roomdata.roomtype)
+		if surroundedby4 and not (b.roomdata.roomtype == 'room4' or b.roomdata.roomtype == 'corner') then
+			warn(tostring(a).. '  SHOULDNOTBE  '.. b.roomdata.roomtype)
 		end
 	end
 end
@@ -237,14 +251,14 @@ draw(mapdata.area - mapdata.width)
 draw(mapdata.area - 1)
 print('corners added')
 
-for a = 0, 6 do
+for a = 0, 1 do
 	for a, b in stems do
 		if b then 
 			draw(a)
 		end
 	end
 end
-print('stems completed'.. ' - iters: 6')
+print('stems completed'.. ' - iters: 1')
 
 revise()
 print('revised')
