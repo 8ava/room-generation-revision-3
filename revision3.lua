@@ -207,17 +207,14 @@ local function determineroomdata(celldata: celldata)
 	}
 end
 
-local function deconstcell(a)
-	local cell = cells[a]
+local function deconstcell(a) -- unstable rn
+	--[[local cell = cells[a]
 	
 	if not cell then warn('no cell at index') return end
 	
 	cell.model:Destroy()
-	cell.model = nil;
 	
-	
-	table.clear(cell)
-	cell = nil
+	table.clear(cell)]]
 end
 
 local function draw(c, override)
@@ -259,8 +256,20 @@ local function revise()
 		local currentsurrounding = getsurrounding(a)
 		local surroundedby4 = currentsurrounding.cells.left and currentsurrounding.cells.right and currentsurrounding.cells.up and currentsurrounding.cells.down
 		
+		if b.roomdata.roomtype == 'room2' then
+			if b.roomdata.rotation == 0 and currentsurrounding.cells.up or currentsurrounding.cells.down then
+				warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+				
+				deconstcell(a)
+				draw(a)
+			end
+		end
+		
 		if surroundedby4 and not (b.roomdata.roomtype == 'room4' or b.roomdata.roomtype == 'corner') then
 			warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room4')
+			
+			deconstcell(a)
+			draw(a)
 		end
 	end
 end
@@ -290,6 +299,8 @@ revise()
 print('revised')
 
 for _, a in cells do
+	if not a.celldata then continue end -- error with deconst
+	
 	local p = coordtoposition(a.celldata.position)
 	a.model:PivotTo(CFrame.new(Vector3.new(p.X * mapdata.scale, 0, p.Y * mapdata.scale)) * CFrame.fromOrientation(0, math.rad(a.roomdata.rotation * 90), 0))
 	
