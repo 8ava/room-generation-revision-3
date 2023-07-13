@@ -219,9 +219,8 @@ local function revise()
 		local currentsurrounding = getsurrounding(a)
 		local surroundedby4 = currentsurrounding.cells.left and currentsurrounding.cells.right and currentsurrounding.cells.up and currentsurrounding.cells.down
 		
-		if surroundedby4 then
-			warn('this is room4')
-			warn(b.roomdata.roomtype)
+		if surroundedby4 and b.roomdata.roomtype ~= 'room4' then
+			warn(tostring(a).. ' should not be '.. b.roomdata.roomtype)
 		end
 	end
 end
@@ -238,14 +237,14 @@ draw(mapdata.area - mapdata.width)
 draw(mapdata.area - 1)
 print('corners added')
 
-for a = 0, 5 do
+for a = 0, 6 do
 	for a, b in stems do
 		if b then 
 			draw(a)
 		end
 	end
 end
-print('stems completed'.. ' - iters: 5')
+print('stems completed'.. ' - iters: 6')
 
 revise()
 print('revised')
