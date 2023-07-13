@@ -214,7 +214,8 @@ local function deconstcell(a) -- unstable rn
 	
 	cell.model:Destroy()
 	
-	table.clear(cell)]]
+	table.clear(cell)
+	cells[a] = nil]]
 end
 
 local function draw(c, override)
