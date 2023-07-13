@@ -44,11 +44,20 @@ local function coordtoposition(a): Vector2
 	return Vector2.new(a % mapdata.width, math.floor(a / mapdata.width))
 end
 
-local doorways = {
-	room1 = {false, false, false, true};
-	room2 = {false, false, true, true};
-	room3 = {true, true, false, true};
-	room4 = {true, true, true, true};
+local directions = {
+	left = 1;
+	right = 2;
+	up = 3;
+	down = 4
+}
+
+local doorways = { -- numbered directions
+	corner = {left = 1, up = 3};
+	
+	room1 = {down = 4};
+	room2 = {left = 1, right = 2};
+	room3 = {left = 1, right = 2, down = 4};
+	room4 = {left = 1, right = 2, up = 3, down = 4};
 }
 
 local rooms = {
@@ -183,7 +192,13 @@ local function determineroomdata(celldata: celldata)
 	end
 	
 	
-	local doors = doorways[roomtype]
+	local doors = doorways[roomtype] or doorways.room2
+	
+	if rotation > 0 then
+		for a, b in doors do
+			b += rotation; b %= 5
+		end
+	end
 	
 	return {
 		roomtype = roomtype;
@@ -222,8 +237,8 @@ local function draw(c, override)
 	local model = roompool[room]:Clone()
 	
 	
-	for _, a in celldata.surrounding.coords do
-		registerstem(a)
+	for a, _ in roomdata.doorways do
+		registerstem(celldata.surrounding.coords[a])
 	end
 	
 	
@@ -252,7 +267,7 @@ end
 
 
 for _, a in rooms.prequired do
-	draw(r:NextInteger(0, mapdata.width * mapdata.height), a)
+	draw(r:NextInteger(0, mapdata.area), a)
 end
 print('prereqs added')
 
