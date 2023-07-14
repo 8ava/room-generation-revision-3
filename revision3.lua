@@ -208,6 +208,7 @@ local function determineroomdata(celldata: celldata): roomdata
 	
 	local doors = doorways[roomtype] or doorways.room2
 	
+	print(roomtype)
 	print(doors)
 	
 	if rotation > 0 then
@@ -216,6 +217,7 @@ local function determineroomdata(celldata: celldata): roomdata
 		end
 	end
 	
+	print(rotation)
 	print(doors)
 	
 	return {
