@@ -342,7 +342,9 @@ draw({coord = mapdata.width - 1})
 draw({coord = mapdata.area - mapdata.width})
 draw({coord = mapdata.area - 1})]]
 
-draw({coord = mapdata.width / 2}) -- from center
+draw({coord = math.floor(mapdata.width / 2), roomtype = 'room3'}) -- from center
+draw({coord = math.floor(mapdata.width / 3), roomtype = 'room3'}) -- from fraction
+draw({coord = math.floor(mapdata.width / 3) * 2, roomtype = 'room3'}) -- from fraction
 
 print('corners added')
 
