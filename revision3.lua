@@ -208,11 +208,15 @@ local function determineroomdata(celldata: celldata): roomdata
 	
 	local doors = doorways[roomtype] or doorways.room2
 	
+	print(doors)
+	
 	if rotation > 0 then
 		for a, b in doors do
-			b += rotation; b %= 5
+			b += rotation; b %= 4
 		end
 	end
+	
+	print(doors)
 	
 	return {
 		roomtype = roomtype;
@@ -221,15 +225,15 @@ local function determineroomdata(celldata: celldata): roomdata
 	}
 end
 
-local function deconstcell(a) -- unstable rn
-	local cell = cells[a]
+local function deconstcell(coord) -- unstable rn
+	local cell = cells[coord]
 	
 	if not cell then warn('no cell at index') return end
 	
 	cell.model:Destroy()
 	
 	--table.clear(cell)
-	cells[a] = false
+	cells[coord] = false -- just figured out what made the inteliense think this was a bool
 end
 
 local function render(a)
@@ -283,7 +287,12 @@ local function draw(args: {coord: number, overrideroom: string ?, rotation: numb
 end
 
 local function revise()
-	
+	--[[for a, b in cells do
+		--local draft = determineroomdata(a)
+		
+		deconstcell(a)
+		draw({coord = a})
+	end]]
 end
 
 
@@ -303,7 +312,7 @@ draw({coord = math.floor(mapdata.width / 3) * 2, roomtype = 'room3'}) -- right f
 
 print('corners added')
 
-for a = 0, 1 do
+for a = 0, 2 do
 	--if #stems < 1 then break end -- cant do this
 	
 	for a, b in stems do
@@ -312,7 +321,7 @@ for a = 0, 1 do
 		end
 	end
 end
-print('stems completed'.. ' - iters: 1')
+print('stems completed'.. ' - iters: 2')
 
 revise()
 print('revised')
