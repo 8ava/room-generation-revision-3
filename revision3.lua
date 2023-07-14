@@ -122,7 +122,7 @@ local function determineroomdata(celldata: celldata)
 	local roomtype
 	local rotation = 0
 	
-	roomtype = 'room4'
+	roomtype = 'room2'
 	
 	if #celldata.surrounding.cells == 4 then
 		roomtype = 'room4'
@@ -302,14 +302,14 @@ draw(mapdata.area - mapdata.width)
 draw(mapdata.area - 1)
 print('corners added')
 
-for a = 0, 1 do
+for a = 0, 4 do
 	for a, b in stems do
 		if b then 
 			draw(a)
 		end
 	end
 end
-print('stems completed'.. ' - iters: 1')
+print('stems completed'.. ' - iters: 4')
 
 revise()
 print('revised')
