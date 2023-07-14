@@ -30,7 +30,7 @@ type celldata = {
 }
 
 type roomdata = {
-	celldata: celldata;
+	roomtype: string;
 	rotation: number;
 	
 	doorways: directions;
@@ -115,7 +115,7 @@ local function constcelldata(coord): celldata
 	}
 end
 
-local function determineroomdata(celldata: celldata)
+local function determineroomdata(celldata: celldata): roomdata
 	local gridp = coordtoposition(celldata.position)
 	local iscorner = celldata.position == 0 or celldata.position == mapdata.width - 1 or celldata.position == mapdata.area - 1 or celldata.position == mapdata.area - mapdata.width
 	
@@ -214,14 +214,14 @@ local function determineroomdata(celldata: celldata)
 end
 
 local function deconstcell(a) -- unstable rn
-	--[[local cell = cells[a]
+	local cell = cells[a]
 	
 	if not cell then warn('no cell at index') return end
 	
 	cell.model:Destroy()
 	
-	table.clear(cell)
-	cells[a] = nil]]
+	--table.clear(cell)
+	cells[a] = false
 end
 
 local function draw(c, override)
@@ -261,32 +261,38 @@ end
 local function revise()
 	for a, b in cells do
 		local currentsurrounding = getsurrounding(a)
-		local surroundedby4 = currentsurrounding.cells.left and currentsurrounding.cells.right and currentsurrounding.cells.up and currentsurrounding.cells.down
 		
 		if b.roomdata.roomtype == 'room2' then
 			if b.roomdata.rotation == 0 and currentsurrounding.cells.up or currentsurrounding.cells.down then
 				if currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
-
-					deconstcell(a)
-					draw(a)
 				end
 				
 				if currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+				end
+				
+				if currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right then
+					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+				end
 
-					deconstcell(a)
-					draw(a)
+				if currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
+					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 				end
 			end
 		end
 		
-		if surroundedby4 and not (b.roomdata.roomtype == 'room4' or b.roomdata.roomtype == 'corner') then
+		if -- :))))))
+			currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right and 
+			currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left and
+			currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down and
+			currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up
+		then
 			warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room4')
-			
-			deconstcell(a)
-			draw(a)
 		end
+		
+		deconstcell()
+		draw(a)
 	end
 end
 
@@ -302,14 +308,14 @@ draw(mapdata.area - mapdata.width)
 draw(mapdata.area - 1)
 print('corners added')
 
-for a = 0, 99 do
+for a = 0, 333 do
 	for a, b in stems do
 		if b then 
 			draw(a)
 		end
 	end
 end
-print('stems completed'.. ' - iters: 99')
+print('stems completed'.. ' - iters: 333')
 
 revise()
 print('revised')
