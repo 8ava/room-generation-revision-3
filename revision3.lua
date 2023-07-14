@@ -3,12 +3,16 @@ local r = Random.new()
 
 local roompool = game.ServerStorage.activerooms
 
+type roomwrap = {celldata: celldata, roomdata: roomdata, model: Model}
+
+type directions = {left: number ?, right: number ?, up: number ?, down: number ?}
+
 type surrounding = {
 	cells: {
-		left: boolean;
-		right: boolean;
-		up: boolean;
-		down: boolean
+		left: roomwrap;
+		right: roomwrap;
+		up: roomwrap;
+		down: roomwrap
 	};
 	
 	coords: {
@@ -27,7 +31,9 @@ type celldata = {
 
 type roomdata = {
 	celldata: celldata;
-	doorways: {boolean}
+	rotation: number;
+	
+	doorways: directions;
 }
 
 local mapdata = {
@@ -259,10 +265,19 @@ local function revise()
 		
 		if b.roomdata.roomtype == 'room2' then
 			if b.roomdata.rotation == 0 and currentsurrounding.cells.up or currentsurrounding.cells.down then
-				warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+				if currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down then
+					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+
+					deconstcell(a)
+					draw(a)
+				end
 				
-				deconstcell(a)
-				draw(a)
+				if currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up then
+					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+
+					deconstcell(a)
+					draw(a)
+				end
 			end
 		end
 		
@@ -303,6 +318,7 @@ for _, a in cells do
 	if not a.celldata then continue end -- error with deconst
 	
 	local p = coordtoposition(a.celldata.position)
+	a.model.Name = a.celldata.position
 	a.model:PivotTo(CFrame.new(Vector3.new(p.X * mapdata.scale, 0, p.Y * mapdata.scale)) * CFrame.fromOrientation(0, math.rad(a.roomdata.rotation * 90), 0))
 	
 	a.model.Parent = game.Workspace
