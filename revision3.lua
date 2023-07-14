@@ -36,9 +36,9 @@ type roomdata = {
 	doorways: directions;
 }
 
-local mapdata = {
-	width = 19;
-	height = 19;
+local mapdata = { -- scpcbsize 19
+	width = 9;
+	height = 9;
 	
 	scale = 40.8
 }
@@ -258,6 +258,14 @@ local function draw(c, override)
 	}
 end
 
+local function render(a)
+	local p = coordtoposition(a.celldata.position)
+	a.model.Name = a.celldata.position
+	a.model:PivotTo(CFrame.new(Vector3.new(p.X * mapdata.scale, 0, p.Y * mapdata.scale)) * CFrame.fromOrientation(0, math.rad(a.roomdata.rotation * 90), 0))
+
+	a.model.Parent = game.Workspace
+end
+
 local function revise()
 	for a, b in cells do
 		local currentsurrounding = getsurrounding(a)
@@ -309,6 +317,8 @@ draw(mapdata.area - 1)
 print('corners added')
 
 for a = 0, 333 do
+	if #stems < 1 then break end
+	
 	for a, b in stems do
 		if b then 
 			draw(a)
@@ -320,13 +330,8 @@ print('stems completed'.. ' - iters: 333')
 revise()
 print('revised')
 
-for _, a in cells do
-	if not a.celldata then continue end -- error with deconst
-	
-	local p = coordtoposition(a.celldata.position)
-	a.model.Name = a.celldata.position
-	a.model:PivotTo(CFrame.new(Vector3.new(p.X * mapdata.scale, 0, p.Y * mapdata.scale)) * CFrame.fromOrientation(0, math.rad(a.roomdata.rotation * 90), 0))
-	
-	a.model.Parent = game.Workspace
+for a = 0, #cells do -- i want to see these in order of stems
+	render(cells[a])
+	task.wait()
 end
 print('set rooms')
