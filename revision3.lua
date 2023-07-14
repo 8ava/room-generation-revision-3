@@ -224,38 +224,46 @@ local function deconstcell(a) -- unstable rn
 	cells[a] = false
 end
 
-local function draw(c, override)
-	if cells[c] then warn('overlap') return end
+local function draw(args: {coord: number, overrideroom: string ?, rotation: number ?, roomtype: string ?})
+	if cells[args.coord] then warn('overlap') return end
 	
 	local room
 	
-	local celldata = constcelldata(c)
+	local celldata = constcelldata(args.coord)
 	local roomdata = determineroomdata(celldata)
 	
-	if override then
-		room = override
+	if args.overrideroom then
+		room = args.overrideroom
+	elseif args.roomtype then
+		room = rooms[args.roomtype][r:NextInteger(1, #rooms[args.roomtype])]
 	else
 		room = rooms[roomdata.roomtype][r:NextInteger(1, #rooms[roomdata.roomtype])]
 	end
 	
 	local model = roompool[room]:Clone()
 	
+	if args.rotation then
+		celldata.rotation = args.rotation
+		roomdata.rotation = args.rotation
+	end
 	
 	for a, _ in roomdata.doorways do
 		registerstem(celldata.surrounding.coords[a])
 	end
 	
 	
-	if stems[c] then
-		stems[c] = nil
+	if stems[args.coord] then
+		stems[args.coord] = nil
 	end
 	
-	cells[c] = {
+	cells[args.coord] = {
 		model = model;
 		
 		celldata = celldata;
 		roomdata = roomdata
 	}
+	
+	args = nil; -- i love gc
 end
 
 local function render(a)
@@ -268,24 +276,31 @@ end
 
 local function revise()
 	for a, b in cells do
+		local roomtype = b.roomdata.roomtype -- why and when tf did this change to a bool
+		local rotation = 0
+		
 		local currentsurrounding = getsurrounding(a)
 		
 		if b.roomdata.roomtype == 'room2' then
 			if b.roomdata.rotation == 0 and currentsurrounding.cells.up or currentsurrounding.cells.down then
 				if currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+					roomtype = 'room3'
 				end
 				
 				if currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+					roomtype = 'room3'
 				end
 				
 				if currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+					roomtype = 'room3'
 				end
 
 				if currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
+					roomtype = 'room3'
 				end
 			end
 		end
@@ -297,31 +312,32 @@ local function revise()
 			currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up
 		then
 			warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room4')
+			roomtype = 'room4'
 		end
 		
 		deconstcell()
-		draw(a)
+		draw({coord = a, roomtype = roomtype, rotation = rotation})
 	end
 end
 
 
 for _, a in rooms.prequired do
-	draw(r:NextInteger(0, mapdata.area), a)
+	draw({coord = r:NextInteger(0, mapdata.area), overrideroom = a})
 end
 print('prereqs added')
 
-draw(0)
-draw(mapdata.width - 1)
-draw(mapdata.area - mapdata.width)
-draw(mapdata.area - 1)
+draw({coord = 0})
+draw({coord = mapdata.width - 1})
+draw({coord = mapdata.area - mapdata.width})
+draw({coord = mapdata.area - 1})
 print('corners added')
 
 for a = 0, 333 do
-	if #stems < 1 then break end
+	--if #stems < 1 then break end -- cant do this
 	
 	for a, b in stems do
 		if b then 
-			draw(a)
+			draw({coord = a})
 		end
 	end
 end
