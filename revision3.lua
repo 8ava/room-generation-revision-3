@@ -1,4 +1,12 @@
 
+-- origin of generation at center of grid
+-- edges of map are exclusive to endrooms
+-- most of the map is horizontal room2s
+-- only occasional breaks to move down y axis
+
+
+-- hcz is much more lenient with many more room3s and room4s
+
 local r = Random.new()
 
 local roompool = game.ServerStorage.activerooms
@@ -224,6 +232,14 @@ local function deconstcell(a) -- unstable rn
 	cells[a] = false
 end
 
+local function render(a)
+	local p = coordtoposition(a.celldata.position)
+	a.model.Name = a.celldata.position
+	a.model:PivotTo(CFrame.new(Vector3.new(p.X * mapdata.scale, 0, p.Y * mapdata.scale)) * CFrame.fromOrientation(0, math.rad(a.roomdata.rotation * 90), 0))
+
+	a.model.Parent = game.Workspace
+end
+
 local function draw(args: {coord: number, overrideroom: string ?, rotation: number ?, roomtype: string ?})
 	if cells[args.coord] then warn('overlap') return end
 	
@@ -266,14 +282,6 @@ local function draw(args: {coord: number, overrideroom: string ?, rotation: numb
 	args = nil; -- i love gc
 end
 
-local function render(a)
-	local p = coordtoposition(a.celldata.position)
-	a.model.Name = a.celldata.position
-	a.model:PivotTo(CFrame.new(Vector3.new(p.X * mapdata.scale, 0, p.Y * mapdata.scale)) * CFrame.fromOrientation(0, math.rad(a.roomdata.rotation * 90), 0))
-
-	a.model.Parent = game.Workspace
-end
-
 local function revise()
 	for a, b in cells do
 		local invalid = false
@@ -282,41 +290,26 @@ local function revise()
 		local rotation = 0
 		
 		local currentsurrounding = getsurrounding(a)
+		local gridp = coordtoposition(a)
 		
-		if b.roomdata.roomtype == 'room2' then
-			if b.roomdata.rotation == 0 and currentsurrounding.cells.up or currentsurrounding.cells.down then
-				if currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down then
-					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
-					roomtype = 'room3'
-					rotation = 0
-					
-					invalid = true
-				end
-				
-				if currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up then
-					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
-					roomtype = 'room3'
-					rotation = 4
-					
-					invalid = true
-				end
-				
-				if currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right then
-					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
-					roomtype = 'room3'
-					rotation = 1
-					
-					invalid = true
-				end
+		if gridp.X == 0 and not (gridp.Y == 0 or gridp.Y == mapdata.height) and currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
+			roomtype = 'room2'
+			rotation = 1
+		end
 
-				if currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
-					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
-					roomtype = 'room3'
-					rotation = 2
-					
-					invalid = true
-				end
-			end
+		if gridp.Y == 0 and not (gridp.X == 0 or gridp.X == mapdata.width - 1) then
+			roomtype = 'room2'
+			rotation = 0
+		end
+
+		if gridp.X == mapdata.width - 1 and not (gridp.Y == 0 or gridp.Y == mapdata.height) then
+			roomtype = 'room2'
+			rotation = 3
+		end
+
+		if gridp.Y == mapdata.height - 1 and not (gridp.X == 0 or gridp.X == mapdata.width - 1) then
+			roomtype = 'room2'
+			rotation = 2
 		end
 		
 		if -- :))))))
@@ -344,10 +337,13 @@ for _, a in rooms.prequired do
 end
 print('prereqs added')
 
-draw({coord = 0})
+--[[draw({coord = 0})
 draw({coord = mapdata.width - 1})
 draw({coord = mapdata.area - mapdata.width})
-draw({coord = mapdata.area - 1})
+draw({coord = mapdata.area - 1})]]
+
+draw({coord = mapdata.width / 2}) -- from center
+
 print('corners added')
 
 for a = 0, 333 do
