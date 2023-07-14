@@ -288,6 +288,7 @@ local function revise()
 				if currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					rotation = 0
 					
 					invalid = true
 				end
@@ -295,6 +296,7 @@ local function revise()
 				if currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					rotation = 4
 					
 					invalid = true
 				end
@@ -302,6 +304,7 @@ local function revise()
 				if currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					rotation = 1
 					
 					invalid = true
 				end
@@ -309,6 +312,7 @@ local function revise()
 				if currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					rotation = 2
 					
 					invalid = true
 				end
