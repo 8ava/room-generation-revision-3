@@ -37,8 +37,8 @@ type roomdata = {
 }
 
 local mapdata = { -- scpcbsize 19
-	width = 9;
-	height = 9;
+	width = 19;
+	height = 19;
 	
 	scale = 40.8
 }
@@ -276,6 +276,8 @@ end
 
 local function revise()
 	for a, b in cells do
+		local invalid = false
+		
 		local roomtype = b.roomdata.roomtype -- why and when tf did this change to a bool
 		local rotation = 0
 		
@@ -286,21 +288,29 @@ local function revise()
 				if currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					
+					invalid = true
 				end
 				
 				if currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					
+					invalid = true
 				end
 				
 				if currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					
+					invalid = true
 				end
 
 				if currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
 					warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room3')
 					roomtype = 'room3'
+					
+					invalid = true
 				end
 			end
 		end
@@ -313,10 +323,14 @@ local function revise()
 		then
 			warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room4')
 			roomtype = 'room4'
+			
+			invalid = true
 		end
 		
-		deconstcell()
-		draw({coord = a, roomtype = roomtype, rotation = rotation})
+		if invalid then
+			deconstcell(a)
+			draw({coord = a, roomtype = roomtype, rotation = rotation})
+		end
 	end
 end
 
@@ -343,7 +357,7 @@ for a = 0, 333 do
 end
 print('stems completed'.. ' - iters: 333')
 
-revise()
+--revise()
 print('revised')
 
 for a = 0, #cells do -- i want to see these in order of stems
