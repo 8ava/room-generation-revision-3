@@ -283,52 +283,7 @@ local function draw(args: {coord: number, overrideroom: string ?, rotation: numb
 end
 
 local function revise()
-	for a, b in cells do
-		local invalid = false
-		
-		local roomtype = b.roomdata.roomtype -- why and when tf did this change to a bool
-		local rotation = 0
-		
-		local currentsurrounding = getsurrounding(a)
-		local gridp = coordtoposition(a)
-		
-		if gridp.X == 0 and not (gridp.Y == 0 or gridp.Y == mapdata.height) and currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left then
-			roomtype = 'room2'
-			rotation = 1
-		end
-
-		if gridp.Y == 0 and not (gridp.X == 0 or gridp.X == mapdata.width - 1) then
-			roomtype = 'room2'
-			rotation = 0
-		end
-
-		if gridp.X == mapdata.width - 1 and not (gridp.Y == 0 or gridp.Y == mapdata.height) then
-			roomtype = 'room2'
-			rotation = 3
-		end
-
-		if gridp.Y == mapdata.height - 1 and not (gridp.X == 0 or gridp.X == mapdata.width - 1) then
-			roomtype = 'room2'
-			rotation = 2
-		end
-		
-		if -- :))))))
-			currentsurrounding.cells.left and currentsurrounding.cells.left.roomdata.doorways.right and 
-			currentsurrounding.cells.right and currentsurrounding.cells.right.roomdata.doorways.left and
-			currentsurrounding.cells.up and currentsurrounding.cells.up.roomdata.doorways.down and
-			currentsurrounding.cells.down and currentsurrounding.cells.down.roomdata.doorways.up
-		then
-			warn(tostring(a)..' '.. b.roomdata.roomtype.. '  SHOULDBE  room4')
-			roomtype = 'room4'
-			
-			invalid = true
-		end
-		
-		if invalid then
-			deconstcell(a)
-			draw({coord = a, roomtype = roomtype, rotation = rotation})
-		end
-	end
+	
 end
 
 
@@ -343,12 +298,12 @@ draw({coord = mapdata.area - mapdata.width})
 draw({coord = mapdata.area - 1})]]
 
 draw({coord = math.floor(mapdata.width / 2), roomtype = 'room3'}) -- from center
-draw({coord = math.floor(mapdata.width / 3), roomtype = 'room3'}) -- from fraction
-draw({coord = math.floor(mapdata.width / 3) * 2, roomtype = 'room3'}) -- from fraction
+draw({coord = math.floor(mapdata.width / 3), roomtype = 'room3'}) -- left fraction
+draw({coord = math.floor(mapdata.width / 3) * 2, roomtype = 'room3'}) -- right fraction
 
 print('corners added')
 
-for a = 0, 333 do
+for a = 0, 1 do
 	--if #stems < 1 then break end -- cant do this
 	
 	for a, b in stems do
@@ -357,13 +312,12 @@ for a = 0, 333 do
 		end
 	end
 end
-print('stems completed'.. ' - iters: 333')
+print('stems completed'.. ' - iters: 1')
 
---revise()
+revise()
 print('revised')
 
-for a = 0, #cells do -- i want to see these in order of stems
-	render(cells[a])
-	task.wait()
+for _, a in cells do -- i want to see these in order of stems
+	render(a)
 end
 print('set rooms')
